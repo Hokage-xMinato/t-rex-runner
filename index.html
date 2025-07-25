@@ -124,156 +124,123 @@
 
 })();
 </script>
-  <!-- <script>
-        function keyDown(e) {
-    Podium = {};
-    var n = document.createEvent("KeyboardEvent");
-    Object.defineProperty(n, "keyCode", {
-        get: function () {
-            return this.keyCodeVal;
-        },
-    }),
-        n.initKeyboardEvent ? n.initKeyboardEvent("keydown", !0, !0, document.defaultView, e, e, "", "", !1, "") : n.initKeyEvent("keydown", !0, !0, document.defaultView, !1, !1, !1, !1, e, 0),
-        (n.keyCodeVal = e),
-        document.body.dispatchEvent(n);
-}
-function keyUp(e) {
-    Podium = {};
-    var n = document.createEvent("KeyboardEvent");
-    Object.defineProperty(n, "keyCode", {
-        get: function () {
-            return this.keyCodeVal;
-        },
-    }),
-        n.initKeyboardEvent ? n.initKeyboardEvent("keyup", !0, !0, document.defaultView, e, e, "", "", !1, "") : n.initKeyEvent("keyup", !0, !0, document.defaultView, !1, !1, !1, !1, e, 0),
-        (n.keyCodeVal = e),
-        document.body.dispatchEvent(n);
-}
-setInterval(function () {
-    Runner.instance_.horizon.obstacles.length > 0 &&
-        (Runner.instance_.horizon.obstacles[0].xPos < 25 * Runner.instance_.currentSpeed - Runner.instance_.horizon.obstacles[0].width / 2 && Runner.instance_.horizon.obstacles[0].yPos > 75 && (keyUp(40), keyDown(38)),
-        Runner.instance_.horizon.obstacles[0].xPos < 30 * Runner.instance_.currentSpeed - Runner.instance_.horizon.obstacles[0].width / 2 && Runner.instance_.horizon.obstacles[0].yPos <= 75 && keyDown(40));
-}, 5);
-    </script><script>
+ <script>
 (function() {
-    // Bot flag
-    let botEnabled = false;
+    // Create container for the script panel
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.bottom = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '99999';
+    container.style.fontFamily = 'Roboto, sans-serif';
+    container.style.maxWidth = '320px';
+    container.style.transition = 'all 0.3s ease';
 
-    // Function to simulate the keydown event
-    function keyDown(e) {
-        var n = document.createEvent("KeyboardEvent");
-        Object.defineProperty(n, "keyCode", {
-            get: function () {
-                return this.keyCodeVal;
-            },
-        });
-        n.initKeyboardEvent ? 
-            n.initKeyboardEvent("keydown", !0, !0, document.defaultView, e, e, "", "", !1, "") : 
-            n.initKeyEvent("keydown", !0, !0, document.defaultView, !1, !1, !1, !1, e, 0);
-        n.keyCodeVal = e;
-        document.body.dispatchEvent(n);
-    }
+    // Add Script Button
+    const toggleButton = document.createElement('button');
+    toggleButton.innerHTML = '➕ Add Script';
+    toggleButton.style.background = 'linear-gradient(145deg, #6c63ff, #3a1dff)';
+    toggleButton.style.color = 'white';
+    toggleButton.style.border = 'none';
+    toggleButton.style.padding = '14px 20px';
+    toggleButton.style.borderRadius = '8px';
+    toggleButton.style.cursor = 'pointer';
+    toggleButton.style.fontSize = '18px';
+    toggleButton.style.boxShadow = '2px 4px 8px rgba(0,0,0,0.2)';
+    toggleButton.style.fontWeight = 'bold';
+    toggleButton.style.transition = '0.3s';
+    toggleButton.style.width = '200px';
+    toggleButton.style.outline = 'none';
 
-    // Function to simulate the keyup event
-    function keyUp(e) {
-        var n = document.createEvent("KeyboardEvent");
-        Object.defineProperty(n, "keyCode", {
-            get: function () {
-                return this.keyCodeVal;
-            },
-        });
-        n.initKeyboardEvent ? 
-            n.initKeyboardEvent("keyup", !0, !0, document.defaultView, e, e, "", "", !1, "") : 
-            n.initKeyEvent("keyup", !0, !0, document.defaultView, !1, !1, !1, !1, e, 0);
-        n.keyCodeVal = e;
-        document.body.dispatchEvent(n);
-    }
+    // Hover effect for the toggle button
+    toggleButton.addEventListener('mouseenter', () => {
+        toggleButton.style.transform = 'scale(1.05)';
+    });
+    toggleButton.addEventListener('mouseleave', () => {
+        toggleButton.style.transform = 'scale(1)';
+    });
 
-    // Main logic to control the bot functionality
-    function startBot() {
-        // Block manual key events while the bot is active
-        document.body.addEventListener('keydown', blockManualKey, true);
-        document.body.addEventListener('keyup', blockManualKey, true);
+    // Hidden script input box
+    const scriptBox = document.createElement('div');
+    scriptBox.style.display = 'none';
+    scriptBox.style.marginTop = '10px';
+    scriptBox.style.background = '#f1f1f1';
+    scriptBox.style.borderRadius = '8px';
+    scriptBox.style.padding = '20px';
+    scriptBox.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15)';
+    scriptBox.style.transition = 'all 0.3s ease';
+    scriptBox.style.maxWidth = '300px';
 
-        setInterval(function () {
-            if (botEnabled && Runner.instance_ && Runner.instance_.horizon.obstacles.length > 0) {
-                let obstacle = Runner.instance_.horizon.obstacles[0];
-                
-                if (obstacle.xPos < 25 * Runner.instance_.currentSpeed - obstacle.width / 2 && obstacle.yPos > 75) {
-                    keyUp(40);  // Stop ducking
-                    keyDown(38); // Jump
-                } else if (obstacle.xPos < 30 * Runner.instance_.currentSpeed - obstacle.width / 2 && obstacle.yPos <= 75) {
-                    keyDown(40); // Duck
-                }
+    // Textarea for script input
+    const textarea = document.createElement('textarea');
+    textarea.rows = 8;
+    textarea.style.width = '100%';
+    textarea.style.resize = 'vertical';
+    textarea.style.fontSize = '16px';
+    textarea.style.padding = '12px';
+    textarea.style.borderRadius = '8px';
+    textarea.style.border = '1px solid #ddd';
+    textarea.style.outline = 'none';
+    textarea.style.transition = 'border-color 0.3s';
+    textarea.placeholder = 'Type or paste JavaScript here...';
+    scriptBox.appendChild(textarea);
+
+    // Run Button
+    const runButton = document.createElement('button');
+    runButton.innerHTML = '▶️ Run in Console';
+    runButton.style.marginTop = '10px';
+    runButton.style.width = '100%';
+    runButton.style.background = 'linear-gradient(145deg, #ff7b00, #ff3700)';
+    runButton.style.color = 'white';
+    runButton.style.border = 'none';
+    runButton.style.padding = '14px';
+    runButton.style.borderRadius = '8px';
+    runButton.style.cursor = 'pointer';
+    runButton.style.fontSize = '16px';
+    runButton.style.fontWeight = 'bold';
+    runButton.style.transition = '0.3s';
+    runButton.style.boxShadow = '2px 4px 8px rgba(0,0,0,0.2)';
+    runButton.style.outline = 'none';
+
+    // Hover effect for run button
+    runButton.addEventListener('mouseenter', () => {
+        runButton.style.transform = 'scale(1.05)';
+    });
+    runButton.addEventListener('mouseleave', () => {
+        runButton.style.transform = 'scale(1)';
+    });
+
+    // Toggle visibility of script box
+    toggleButton.addEventListener('click', () => {
+        scriptBox.style.display = scriptBox.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Run script in console
+    runButton.addEventListener('click', () => {
+        const code = textarea.value.trim();
+        if (code) {
+            try {
+                eval(code);  // Execute the code in the console
+                alert('✅ Script executed successfully!');
+            } catch (err) {
+                alert('❌ Error: ' + err.message);
+                console.error(err);
             }
-        }, 5); // Run every 5ms
-    }
-
-    // Function to block manual key events
-    function blockManualKey(e) {
-        // Disable space bar only when the bot is active (except for starting the game)
-        if (botEnabled && e.keyCode === 32) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return false;
-        }
-
-        // Allow space to start the game (but block for other key actions when bot is running)
-        if (botEnabled && e.keyCode === 32 && !Runner.instance_.playing) {
-            return true; // Allow space to start the game
-        }
-
-        // For all other keys, prevent default action if bot is enabled
-        if (botEnabled) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return false;
-        }
-    }
-
-    // Function to stop the bot and re-enable manual control
-    function stopBot() {
-        botEnabled = false;
-
-        // Remove the event listeners to allow manual control again
-        document.body.removeEventListener('keydown', blockManualKey, true);
-        document.body.removeEventListener('keyup', blockManualKey, true);
-    }
-
-    // Create a div to hold the bot toggle checkbox and button
-    const botContainer = document.createElement('div');
-    botContainer.style.position = 'absolute';
-    botContainer.style.top = '20px';
-    botContainer.style.left = '20px';
-    botContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    botContainer.style.padding = '10px';
-    botContainer.style.borderRadius = '5px';
-    botContainer.style.color = '#fff';
-    botContainer.style.zIndex = '9999';
-    document.body.appendChild(botContainer);
-
-    // Add checkbox for enabling bot
-    const label = document.createElement('label');
-    label.innerHTML = 'Enable bot?';
-    label.style.marginRight = '10px';
-    botContainer.appendChild(label);
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.addEventListener('change', function() {
-        botEnabled = this.checked;
-        if (botEnabled) {
-            startBot();  // Start the bot
         } else {
-            stopBot();  // Stop the bot and re-enable manual control
+            alert('⚠️ Please enter some code first.');
         }
     });
-    botContainer.appendChild(checkbox);
 
-    // Add some styling to make it look better
-    checkbox.style.marginLeft = '10px';
+    // Add all elements to the container
+    container.appendChild(toggleButton);
+    container.appendChild(scriptBox);
+    scriptBox.appendChild(runButton);
+
+    // Append the container to the body
+    document.body.appendChild(container);
 
 })();
-</script>-->
+</script>
+
 
 </html>
