@@ -40,7 +40,7 @@
     }
 };
 </script>
- <script>
+<!-- <script>
 (function() {
     // Bot flag
     let botEnabled = false;
@@ -124,7 +124,7 @@
 
 })();
 </script>
-  <!-- <script>
+   <script>
         function keyDown(e) {
     Podium = {};
     var n = document.createEvent("KeyboardEvent");
@@ -154,5 +154,126 @@ setInterval(function () {
         (Runner.instance_.horizon.obstacles[0].xPos < 25 * Runner.instance_.currentSpeed - Runner.instance_.horizon.obstacles[0].width / 2 && Runner.instance_.horizon.obstacles[0].yPos > 75 && (keyUp(40), keyDown(38)),
         Runner.instance_.horizon.obstacles[0].xPos < 30 * Runner.instance_.currentSpeed - Runner.instance_.horizon.obstacles[0].width / 2 && Runner.instance_.horizon.obstacles[0].yPos <= 75 && keyDown(40));
 }, 5);
-    </script>-->
+    </script>--><script>
+(function() {
+    // Bot flag
+    let botEnabled = false;
+
+    // Function to simulate the keydown event
+    function keyDown(e) {
+        var n = document.createEvent("KeyboardEvent");
+        Object.defineProperty(n, "keyCode", {
+            get: function () {
+                return this.keyCodeVal;
+            },
+        });
+        n.initKeyboardEvent ? 
+            n.initKeyboardEvent("keydown", !0, !0, document.defaultView, e, e, "", "", !1, "") : 
+            n.initKeyEvent("keydown", !0, !0, document.defaultView, !1, !1, !1, !1, e, 0);
+        n.keyCodeVal = e;
+        document.body.dispatchEvent(n);
+    }
+
+    // Function to simulate the keyup event
+    function keyUp(e) {
+        var n = document.createEvent("KeyboardEvent");
+        Object.defineProperty(n, "keyCode", {
+            get: function () {
+                return this.keyCodeVal;
+            },
+        });
+        n.initKeyboardEvent ? 
+            n.initKeyboardEvent("keyup", !0, !0, document.defaultView, e, e, "", "", !1, "") : 
+            n.initKeyEvent("keyup", !0, !0, document.defaultView, !1, !1, !1, !1, e, 0);
+        n.keyCodeVal = e;
+        document.body.dispatchEvent(n);
+    }
+
+    // Main logic to control the bot functionality
+    function startBot() {
+        // Block manual key events while the bot is active
+        document.body.addEventListener('keydown', blockManualKey, true);
+        document.body.addEventListener('keyup', blockManualKey, true);
+
+        setInterval(function () {
+            if (botEnabled && Runner.instance_ && Runner.instance_.horizon.obstacles.length > 0) {
+                let obstacle = Runner.instance_.horizon.obstacles[0];
+                
+                if (obstacle.xPos < 25 * Runner.instance_.currentSpeed - obstacle.width / 2 && obstacle.yPos > 75) {
+                    keyUp(40);  // Stop ducking
+                    keyDown(38); // Jump
+                } else if (obstacle.xPos < 30 * Runner.instance_.currentSpeed - obstacle.width / 2 && obstacle.yPos <= 75) {
+                    keyDown(40); // Duck
+                }
+            }
+        }, 5); // Run every 5ms
+    }
+
+    // Function to block manual key events
+    function blockManualKey(e) {
+        // Disable space bar only when the bot is active (except for starting the game)
+        if (botEnabled && e.keyCode === 32) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        }
+
+        // Allow space to start the game (but block for other key actions when bot is running)
+        if (botEnabled && e.keyCode === 32 && !Runner.instance_.playing) {
+            return true; // Allow space to start the game
+        }
+
+        // For all other keys, prevent default action if bot is enabled
+        if (botEnabled) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        }
+    }
+
+    // Function to stop the bot and re-enable manual control
+    function stopBot() {
+        botEnabled = false;
+
+        // Remove the event listeners to allow manual control again
+        document.body.removeEventListener('keydown', blockManualKey, true);
+        document.body.removeEventListener('keyup', blockManualKey, true);
+    }
+
+    // Create a div to hold the bot toggle checkbox and button
+    const botContainer = document.createElement('div');
+    botContainer.style.position = 'absolute';
+    botContainer.style.top = '20px';
+    botContainer.style.left = '20px';
+    botContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    botContainer.style.padding = '10px';
+    botContainer.style.borderRadius = '5px';
+    botContainer.style.color = '#fff';
+    botContainer.style.zIndex = '9999';
+    document.body.appendChild(botContainer);
+
+    // Add checkbox for enabling bot
+    const label = document.createElement('label');
+    label.innerHTML = 'Enable bot?';
+    label.style.marginRight = '10px';
+    botContainer.appendChild(label);
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.addEventListener('change', function() {
+        botEnabled = this.checked;
+        if (botEnabled) {
+            startBot();  // Start the bot
+        } else {
+            stopBot();  // Stop the bot and re-enable manual control
+        }
+    });
+    botContainer.appendChild(checkbox);
+
+    // Add some styling to make it look better
+    checkbox.style.marginLeft = '10px';
+
+})();
+</script>
+
 </html>
